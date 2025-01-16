@@ -1,15 +1,3 @@
-import streamlit as st
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import yfinance as yf
-from scipy.optimize import minimize
-import zipfile
-import requests
-import io
-
-
 # Function to fetch stock data
 def get_stock_data(tickers, start_date, end_date):
     stock_data = yf.download(tickers, start=start_date, end=end_date)
