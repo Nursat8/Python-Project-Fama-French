@@ -1,8 +1,0 @@
-streamlit
-pandas
-numpy
-matplotlib
-seaborn
-yfinance
-scipy
-requests
