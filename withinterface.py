@@ -129,22 +129,21 @@ def plot_3d_metrics(weights, returns, fama_french_factors, selected_factors):
     points = np.array(points)
 
     # Create 3D plot
-    fig = plt.figure(figsize=(10, 8))
+    fig = plt.figure(figsize=(8, 6))
     ax = fig.add_subplot(111, projection='3d')
-    scatter = ax.scatter(
-        points[:, 0], points[:, 1], points[:, 2],
-        c=points[:, 0], cmap='viridis', label='Simulated Portfolios'
-    )
-    ax.scatter(
-        sharpe_ratio, portfolio_annualized_return, portfolio_risk,
-        color='red', label='Optimal Portfolio', s=100
-    )
+    ax.scatter(points[:, 0], points[:, 1], points[:, 2], c=points[:, 0], cmap='viridis', label='Simulated Portfolios')
+    ax.scatter(sharpe_ratio, portfolio_annualized_return, portfolio_risk, color='r', label='Optimal Portfolio', s=100)
 
-    ax.set_xlabel('Sharpe Ratio', fontsize=12, labelpad=15)
-    ax.set_ylabel('Annualized Return', fontsize=12, labelpad=15)
-    ax.set_zlabel('Risk (Standard Deviation)', fontsize=12, labelpad=15)
-    ax.set_title('3D Visualization of Portfolio Metrics', fontsize=14, pad=20)
-    ax.legend(fontsize=10)
+    ax.set_xlabel('Sharpe Ratio', labelpad=15)
+    ax.set_ylabel('Annualized Return', labelpad=15)
+    ax.set_zlabel('Risk (Standard Deviation)', labelpad=15)
+
+    ax.set_title('3D Visualization of Portfolio Metrics', pad=20)
+    ax.legend()
+
+    # Adjust margins for better visibility
+    fig.tight_layout()
+    plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
 
     st.pyplot(fig)
 
