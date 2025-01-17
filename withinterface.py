@@ -9,13 +9,15 @@ import zipfile
 import requests
 import io
 
-# Function to fetch stock data
+# Functions for Project
+
+# Function to upload stock data from yfinance with possible raising error
 def get_stock_data(tickers, start_date, end_date):
     stock_data = yf.download(tickers, start=start_date, end=end_date)
     if stock_data.empty:
-        raise ValueError(f"No data found for tickers: {tickers}")
+        raise ValueError(f"Data were not found for these tickers: {tickers}")
 
-    if isinstance(stock_data.columns, pd.MultiIndex):
+    if isinstance(stock_data.columns, pd.MultiIndex): #check if DataFrame is MultiIndex as code handle DataFrame with hierarchical column
         stock_data = stock_data['Close']
 
     if stock_data.empty:
@@ -24,8 +26,7 @@ def get_stock_data(tickers, start_date, end_date):
     returns = stock_data.pct_change().dropna()
     return returns
 
-
-# Function to fetch Fama-French factors
+# Function upload Fama-French factors from Dartmouth database. It was done with the help of ChatGPT to make sure data was retrieved successfully.
 def get_fama_french_factors():
     url = "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_daily_CSV.zip"
     response = requests.get(url)
@@ -36,7 +37,8 @@ def get_fama_french_factors():
         file_name = [name for name in z.namelist() if name.endswith('.CSV')][0]
         with z.open(file_name) as csvfile:
             factors = pd.read_csv(csvfile, skiprows=4)
-    
+            
+    #To apply marks for factors and convert percentages to decimals
     factors.columns = ['Date', 'Mkt-RF', 'SMB', 'HML', 'RF']
     factors = factors[factors['Date'].apply(lambda x: str(x).isdigit())]
     factors['Date'] = pd.to_datetime(factors['Date'], format='%Y%m%d')
@@ -44,17 +46,18 @@ def get_fama_french_factors():
     factors = factors.astype(float) / 100  # Convert percentages to decimals
     return factors
 
-
-# Function to calculate optimal portfolio weights
+# Function to estimate optimal portfolio weights
 def calculate_weights(returns, fama_french_factors, selected_factors):
     def objective(weights):
         portfolio_returns = np.dot(returns.values, weights)
         excess_returns = portfolio_returns - fama_french_factors['RF'].values
         X = fama_french_factors[selected_factors].values
-        beta, _, _, _ = np.linalg.lstsq(X, excess_returns, rcond=None)
+        beta, _, _, _ = np.linalg.lstsq(X, excess_returns, rcond=None) #performs linear regression to estimate beta
         residuals = excess_returns - np.dot(X, beta)
         return np.var(residuals)
-    
+
+    # Optimization part starting with equal weights and constraint(sum of all weights should 1) and every weight should be from 0 to 1
+    # Optimization was done using scipy minimization.
     n = len(returns.columns)
     initial_weights = np.ones(n) / n
     constraints = [{'type': 'eq', 'fun': lambda w: np.sum(w) - 1}]
@@ -63,7 +66,7 @@ def calculate_weights(returns, fama_french_factors, selected_factors):
     return result.x
 
 
-# Function to plot contribution charts
+# Function to plot contribution charts. Contributions are calculated by multiplying beta with the weight
 def plot_contribution_chart(weights, returns, fama_french_factors, selected_factors):
     portfolio_returns = np.dot(returns.values, weights)
     excess_returns = portfolio_returns - fama_french_factors['RF'].values
@@ -73,7 +76,7 @@ def plot_contribution_chart(weights, returns, fama_french_factors, selected_fact
 
     for i, factor in enumerate(selected_factors):
         plt.figure()
-        plt.bar(returns.columns, contributions[:, i], alpha=0.7)
+        plt.bar(returns.columns, contributions[:, i], alpha=0.8)
         plt.title(f'Contributions to {factor}')
         plt.xlabel('Stock')
         plt.ylabel('Contribution')
@@ -96,11 +99,11 @@ st.title("Fama-French Portfolio Optimization")
 st.sidebar.header("Input Parameters")
 
 # User inputs
-tickers = st.sidebar.text_input("Enter stock tickers (comma-separated):", "AAPL, MSFT, TSLA")
+tickers = st.sidebar.text_input("Enter stock tickers (comma-separated):", "AAPL,SYM,BMRA,UNH,BBAI,NUKK")
 start_date = st.sidebar.date_input("Start Date", value=pd.Timestamp("2020-01-01"))
-end_date = st.sidebar.date_input("End Date", value=pd.Timestamp.today())
+end_date = st.sidebar.date_input("End Date", value=pd.Timestamp("2024-01-01"))
 
-# Factor selection
+# Factor selection. This part was done with some help from the ChatGPT
 st.sidebar.subheader("Select Factors to Use")
 use_all_factors = st.sidebar.checkbox("Use All Factors", value=True)
 selected_factors = []
@@ -115,6 +118,7 @@ if not use_all_factors:
 else:
     selected_factors = ["Mkt-RF", "SMB", "HML"]
 
+# Data uploading
 if st.sidebar.button("Run Analysis"):
     tickers = [ticker.strip() for ticker in tickers.split(",")]
     stock_returns = get_stock_data(tickers, start_date, end_date)
@@ -124,11 +128,12 @@ if st.sidebar.button("Run Analysis"):
     fama_french_factors = fama_french_factors.loc[stock_returns.index.min():stock_returns.index.max()]
     weights = calculate_weights(stock_returns, fama_french_factors, selected_factors)
 
-    # Display results
+    # For results
     st.subheader("Optimal Portfolio Weights")
     portfolio_df = pd.DataFrame({'Stock': stock_returns.columns, 'Weight': weights})
     st.dataframe(portfolio_df)
 
+    # Calculation of Sharpe Ratio
     st.subheader("Sharpe Ratio")
     portfolio_returns = np.dot(stock_returns.values, weights)
     sharpe_ratio = portfolio_returns.mean() / portfolio_returns.std()
