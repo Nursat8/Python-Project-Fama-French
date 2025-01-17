@@ -108,7 +108,7 @@ def compute_beta_matrix(returns, fama_french_factors, selected_factors):
         beta, _, _, _ = np.linalg.lstsq(X, y, rcond=None)
         beta_matrix.append(beta)
     return pd.DataFrame(beta_matrix, columns=selected_factors, index=returns.columns)
-    
+
 def plot_3d_metrics(weights, returns, fama_french_factors, selected_factors):
     portfolio_returns = np.dot(returns.values, weights)
     portfolio_annualized_return = np.mean(portfolio_returns) * 252
@@ -128,16 +128,20 @@ def plot_3d_metrics(weights, returns, fama_french_factors, selected_factors):
     points = np.array(points)
 
     # Create 3D plot
-    fig = plt.figure(figsize=(10, 8))  # Increased figure size
+    fig = plt.figure(figsize=(10, 6))  # Adjusted width to provide space for labels
     ax = fig.add_subplot(111, projection='3d')
     ax.scatter(points[:, 0], points[:, 1], points[:, 2], c=points[:, 0], cmap='viridis', label='Simulated Portfolios')
     ax.scatter(sharpe_ratio, portfolio_annualized_return, portfolio_risk, color='r', label='Optimal Portfolio', s=100)
 
-    ax.set_xlabel('Sharpe Ratio', labelpad=15, fontsize=6)
-    ax.set_ylabel('Annualized Return', labelpad=15, fontsize=6)
-    ax.set_zlabel('Risk (Standard Deviation)', labelpad=15, fontsize=6)
+    ax.set_xlabel('Sharpe Ratio', labelpad=20, fontsize=12)
+    ax.set_ylabel('Annualized Return', labelpad=20, fontsize=12)
+    ax.set_zlabel('Risk (Standard Deviation)', labelpad=20, fontsize=12)
 
     ax.set_title('3D Visualization of Portfolio Metrics', pad=40, fontsize=14)
+    ax.legend(fontsize=10, loc='upper left')
+
+    # Adjust plot margins to move it to the left
+    fig.subplots_adjust(left=0.15, right=0.85, top=0.9, bottom=0.2, wspace=0.2)
 
     st.pyplot(fig)
 
