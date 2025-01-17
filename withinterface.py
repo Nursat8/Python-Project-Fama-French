@@ -133,15 +133,11 @@ def plot_3d_metrics(weights, returns, fama_french_factors, selected_factors):
     ax.scatter(points[:, 0], points[:, 1], points[:, 2], c=points[:, 0], cmap='viridis', label='Simulated Portfolios')
     ax.scatter(sharpe_ratio, portfolio_annualized_return, portfolio_risk, color='r', label='Optimal Portfolio', s=100)
 
-    ax.set_xlabel('Sharpe Ratio', labelpad=20, fontsize=12)
-    ax.set_ylabel('Annualized Return', labelpad=20, fontsize=12)
-    ax.set_zlabel('Risk (Standard Deviation)', labelpad=20, fontsize=12)
+    ax.set_xlabel('Sharpe Ratio')
+    ax.set_ylabel('Annualized Return')
+    ax.set_zlabel('Risk (Standard Deviation)')
 
-    ax.set_title('3D Visualization of Portfolio Metrics', pad=40, fontsize=14)
-    ax.legend(fontsize=10, loc='upper left')
-
-    # Adjust plot margins to move it to the left
-    fig.subplots_adjust(left=0.15, right=0.85, top=0.9, bottom=0.2, wspace=0.2)
+    ax.set_title('3D Visualization of Portfolio Metrics')
 
     st.pyplot(fig)
 
