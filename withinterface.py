@@ -99,7 +99,6 @@ def plot_contribution_chart(weights, returns, fama_french_factors, selected_fact
         plt.ylabel('Contribution')
         st.pyplot(plt)
 
-
 # Function to compute beta matrix
 def compute_beta_matrix(returns, fama_french_factors, selected_factors):
     X = fama_french_factors[selected_factors].values
@@ -129,14 +128,14 @@ def plot_3d_metrics(weights, returns, fama_french_factors, selected_factors):
     points = np.array(points)
 
     # Create 3D plot
-    fig = plt.figure(figsize=(10, 8))  # Increased figure size
+    fig = plt.figure(figsize=(8, 4))  # Increased figure size
     ax = fig.add_subplot(111, projection='3d')
     ax.scatter(points[:, 0], points[:, 1], points[:, 2], c=points[:, 0], cmap='viridis', label='Simulated Portfolios')
     ax.scatter(sharpe_ratio, portfolio_annualized_return, portfolio_risk, color='r', label='Optimal Portfolio', s=100)
 
-    ax.set_xlabel('Sharpe Ratio', labelpad=20, fontsize=12)
-    ax.set_ylabel('Annualized Return', labelpad=20, fontsize=12)
-    ax.set_zlabel('Risk (Standard Deviation)', labelpad=20, fontsize=12)
+    ax.set_xlabel('Sharpe Ratio', labelpad=15, fontsize=6)
+    ax.set_ylabel('Annualized Return', labelpad=15, fontsize=6)
+    ax.set_zlabel('Risk (Standard Deviation)', labelpad=15, fontsize=6)
 
     ax.set_title('3D Visualization of Portfolio Metrics', pad=40, fontsize=14)
     ax.legend(fontsize=10, loc='upper left')  # Adjusted legend position and font size
