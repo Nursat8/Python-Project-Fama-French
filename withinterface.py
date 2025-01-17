@@ -8,6 +8,7 @@ from scipy.optimize import minimize
 import zipfile
 import requests
 import io
+from mpl_toolkits.mplot3d import Axes3D
 
 # Functions for Project
 
@@ -65,6 +66,21 @@ def calculate_weights(returns, fama_french_factors, selected_factors):
     result = minimize(objective, initial_weights, bounds=bounds, constraints=constraints)
     return result.x
 
+# Function to calculate regression statistics
+def regression_statistics(X, y):
+    beta, residuals, rank, s = np.linalg.lstsq(X, y, rcond=None)
+    y_pred = np.dot(X, beta)
+    n, k = X.shape
+    residual_sum_of_squares = np.sum((y - y_pred)**2)
+    total_sum_of_squares = np.sum((y - np.mean(y))**2)
+    r_squared = 1 - (residual_sum_of_squares / total_sum_of_squares)
+
+    mse = residual_sum_of_squares / (n - k)
+    std_error = np.sqrt(np.diagonal(mse * np.linalg.inv(np.dot(X.T, X))))
+    t_stat = beta / std_error
+    p_value = 2 * (1 - st.norm.cdf(np.abs(t_stat)))
+
+    return beta, std_error, t_stat, p_value, r_squared
 
 # Function to plot contribution charts. Contributions are calculated by multiplying beta with the weight
 def plot_contribution_chart(weights, returns, fama_french_factors, selected_factors):
@@ -133,12 +149,42 @@ if st.sidebar.button("Run Analysis"):
     portfolio_df = pd.DataFrame({'Stock': stock_returns.columns, 'Weight': weights})
     st.dataframe(portfolio_df)
 
+    # Returns presenting
+    st.subheader("Portfolio Returns")
+    portfolio_returns = np.dot(stock_returns.values, weights)
+    st.line_chart(pd.DataFrame(portfolio_returns, index=stock_returns.index, columns=['Portfolio Returns']))
+
+    # 3D Plot of Portfolio Weights
+    st.subheader("3D Visualization of Portfolio Weights")
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.bar(stock_returns.columns, weights, zs=0, zdir='y', alpha=0.8)
+    ax.set_xlabel('Stocks')
+    ax.set_ylabel('Factors')
+    ax.set_zlabel('Weights')
+    st.pyplot(fig)
+
     # Calculation of Sharpe Ratio
     st.subheader("Sharpe Ratio")
     portfolio_returns = np.dot(stock_returns.values, weights)
     sharpe_ratio = portfolio_returns.mean() / portfolio_returns.std()
     st.write(f"Sharpe Ratio: {sharpe_ratio:.2f}")
 
+    # Statistical Data
+    st.subheader("Regression Statistics")
+    X = fama_french_factors[selected_factors].values
+    y = portfolio_returns - fama_french_factors['RF'].values
+    beta, std_error, t_stat, p_value, r_squared = regression_statistics(X, y)
+    regression_results = pd.DataFrame({
+        'Factor': selected_factors,
+        'Beta': beta,
+        'Std. Error': std_error,
+        't-Statistic': t_stat,
+        'p-Value': p_value
+    })
+    st.dataframe(regression_results)
+    st.write(f"R-squared: {r_squared:.4f}")    
+    
     # Contribution charts
     st.subheader("Contribution Charts")
     plot_contribution_chart(weights, stock_returns, fama_french_factors, selected_factors)
@@ -156,3 +202,4 @@ if st.sidebar.button("Run Analysis"):
     plt.figure(figsize=(10, 6))
     sns.heatmap(stock_returns.corr(), annot=True, cmap="coolwarm", fmt=".2f")
     st.pyplot(plt)
+
