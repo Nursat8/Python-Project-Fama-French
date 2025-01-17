@@ -141,7 +141,7 @@ def plot_3d_metrics(weights, returns, fama_french_factors, selected_factors):
     ax.legend(fontsize=10)  # Adjusted legend position and font size
 
     # Adjust plot margins for better visibility
-    fig.subplots_adjust(left=0.2, right=0.2, top=0.9, bottom=0.2)
+    fig.subplots_adjust(left=0.5, right=0.5, top=0.9, bottom=0.2)
 
     st.pyplot(fig)
 
