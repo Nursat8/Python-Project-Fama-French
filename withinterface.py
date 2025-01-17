@@ -79,7 +79,7 @@ def regression_statistics(X, y):
     mse = residual_sum_of_squares / (n - k)
     std_error = np.sqrt(np.diagonal(mse * np.linalg.inv(np.dot(X.T, X))))
     t_stat = beta / std_error
-    p_value = 2 * (1 - st.norm.cdf(np.abs(t_stat)))
+    p_value = 2 * (1 - norm.cdf(np.abs(t_stat)))
 
     return beta, std_error, t_stat, p_value, r_squared
 
