@@ -129,7 +129,7 @@ def plot_3d_metrics(weights, returns, fama_french_factors, selected_factors):
     points = np.array(points)
 
     # Create 3D plot
-    fig = plt.figure(figsize=(10, 7))
+    fig = plt.figure(figsize=(8, 4))
     ax = fig.add_subplot(111, projection='3d')
     ax.scatter(points[:, 0], points[:, 1], points[:, 2], c=points[:, 0], cmap='viridis', label='Simulated Portfolios')
     ax.scatter(sharpe_ratio, portfolio_annualized_return, portfolio_risk, color='r', label='Optimal Portfolio', s=100)
@@ -223,7 +223,7 @@ if st.sidebar.button("Run Analysis"):
     st.subheader("Factor Sensitivity Heatmap")
     beta_matrix = compute_beta_matrix(stock_returns, fama_french_factors, selected_factors)
     st.dataframe(beta_matrix)
-    plt.figure(figsize=(8, 4))
+    plt.figure(figsize=(10, 6))
     sns.heatmap(beta_matrix, annot=True, cmap="coolwarm", fmt=".2f")
     st.pyplot(plt)
 
