@@ -128,7 +128,7 @@ def plot_3d_metrics(weights, returns, fama_french_factors, selected_factors):
     points = np.array(points)
 
     # Create 3D plot
-    fig = plt.figure(figsize=(8, 4))  # Increased figure size
+    fig = plt.figure(figsize=(10, 8))  # Increased figure size
     ax = fig.add_subplot(111, projection='3d')
     ax.scatter(points[:, 0], points[:, 1], points[:, 2], c=points[:, 0], cmap='viridis', label='Simulated Portfolios')
     ax.scatter(sharpe_ratio, portfolio_annualized_return, portfolio_risk, color='r', label='Optimal Portfolio', s=100)
