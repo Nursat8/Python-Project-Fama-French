@@ -31,8 +31,6 @@ def get_stock_data(tickers, start_date, end_date):
 def get_fama_french_factors():
     url = "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_daily_CSV.zip"
     response = requests.get(url)
-    if response.status_code != 200:
-        raise Exception("Failed to fetch data from Ken French's site.")
     
     with zipfile.ZipFile(io.BytesIO(response.content)) as z:
         file_name = [name for name in z.namelist() if name.endswith('.CSV')][0]
