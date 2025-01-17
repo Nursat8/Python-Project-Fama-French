@@ -8,6 +8,7 @@ from scipy.optimize import minimize
 import zipfile
 import requests
 import io
+from scipy.stats import norm
 from mpl_toolkits.mplot3d import Axes3D
 
 # Functions for Project
