@@ -46,11 +46,11 @@ def get_fama_french_factors():
 
 
 # Function to calculate optimal portfolio weights
-def calculate_weights(returns, fama_french_factors):
+def calculate_weights(returns, fama_french_factors, selected_factors):
     def objective(weights):
         portfolio_returns = np.dot(returns.values, weights)
         excess_returns = portfolio_returns - fama_french_factors['RF'].values
-        X = fama_french_factors[['Mkt-RF', 'SMB', 'HML']].values
+        X = fama_french_factors[selected_factors].values
         beta, _, _, _ = np.linalg.lstsq(X, excess_returns, rcond=None)
         residuals = excess_returns - np.dot(X, beta)
         return np.var(residuals)
@@ -64,15 +64,14 @@ def calculate_weights(returns, fama_french_factors):
 
 
 # Function to plot contribution charts
-def plot_contribution_chart(weights, returns, fama_french_factors):
+def plot_contribution_chart(weights, returns, fama_french_factors, selected_factors):
     portfolio_returns = np.dot(returns.values, weights)
     excess_returns = portfolio_returns - fama_french_factors['RF'].values
-    X = fama_french_factors[['Mkt-RF', 'SMB', 'HML']].values
+    X = fama_french_factors[selected_factors].values
     beta, _, _, _ = np.linalg.lstsq(X, excess_returns, rcond=None)
     contributions = beta * weights[:, None]
 
-    factors = ['Mkt-RF', 'SMB', 'HML']
-    for i, factor in enumerate(factors):
+    for i, factor in enumerate(selected_factors):
         plt.figure()
         plt.bar(returns.columns, contributions[:, i], alpha=0.7)
         plt.title(f'Contributions to {factor}')
@@ -82,14 +81,14 @@ def plot_contribution_chart(weights, returns, fama_french_factors):
 
 
 # Function to compute beta matrix
-def compute_beta_matrix(returns, fama_french_factors):
-    X = fama_french_factors[['Mkt-RF', 'SMB', 'HML']].values
+def compute_beta_matrix(returns, fama_french_factors, selected_factors):
+    X = fama_french_factors[selected_factors].values
     beta_matrix = []
     for stock in returns.columns:
         y = returns[stock] - fama_french_factors['RF'].values
         beta, _, _, _ = np.linalg.lstsq(X, y, rcond=None)
         beta_matrix.append(beta)
-    return pd.DataFrame(beta_matrix, columns=['Mkt-RF', 'SMB', 'HML'], index=returns.columns)
+    return pd.DataFrame(beta_matrix, columns=selected_factors, index=returns.columns)
 
 
 # Streamlit Interface
@@ -101,6 +100,21 @@ tickers = st.sidebar.text_input("Enter stock tickers (comma-separated):", "AAPL,
 start_date = st.sidebar.date_input("Start Date", value=pd.Timestamp("2020-01-01"))
 end_date = st.sidebar.date_input("End Date", value=pd.Timestamp.today())
 
+# Factor selection
+st.sidebar.subheader("Select Factors to Use")
+use_all_factors = st.sidebar.checkbox("Use All Factors", value=True)
+selected_factors = []
+
+if not use_all_factors:
+    if st.sidebar.checkbox("Market (Mkt-RF)"):
+        selected_factors.append("Mkt-RF")
+    if st.sidebar.checkbox("Size (SMB)"):
+        selected_factors.append("SMB")
+    if st.sidebar.checkbox("Value (HML)"):
+        selected_factors.append("HML")
+else:
+    selected_factors = ["Mkt-RF", "SMB", "HML"]
+
 if st.sidebar.button("Run Analysis"):
     tickers = [ticker.strip() for ticker in tickers.split(",")]
     stock_returns = get_stock_data(tickers, start_date, end_date)
@@ -108,7 +122,7 @@ if st.sidebar.button("Run Analysis"):
 
     # Align data
     fama_french_factors = fama_french_factors.loc[stock_returns.index.min():stock_returns.index.max()]
-    weights = calculate_weights(stock_returns, fama_french_factors)
+    weights = calculate_weights(stock_returns, fama_french_factors, selected_factors)
 
     # Display results
     st.subheader("Optimal Portfolio Weights")
@@ -122,11 +136,11 @@ if st.sidebar.button("Run Analysis"):
 
     # Contribution charts
     st.subheader("Contribution Charts")
-    plot_contribution_chart(weights, stock_returns, fama_french_factors)
+    plot_contribution_chart(weights, stock_returns, fama_french_factors, selected_factors)
 
     # Factor sensitivity heatmap
     st.subheader("Factor Sensitivity Heatmap")
-    beta_matrix = compute_beta_matrix(stock_returns, fama_french_factors)
+    beta_matrix = compute_beta_matrix(stock_returns, fama_french_factors, selected_factors)
     st.dataframe(beta_matrix)
     plt.figure(figsize=(10, 6))
     sns.heatmap(beta_matrix, annot=True, cmap="coolwarm", fmt=".2f")
