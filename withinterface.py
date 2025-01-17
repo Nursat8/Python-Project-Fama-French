@@ -129,18 +129,29 @@ def plot_3d_metrics(weights, returns, fama_french_factors, selected_factors):
     points = np.array(points)
 
     # Create 3D plot
-    fig = plt.figure(figsize=(8, 6))
+    fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(points[:, 0], points[:, 1], points[:, 2], c=points[:, 0], cmap='viridis', label='Simulated Portfolios')
-    ax.scatter(sharpe_ratio, portfolio_annualized_return, portfolio_risk, color='r', label='Optimal Portfolio', s=100)
+    scatter = ax.scatter(
+        points[:, 0], points[:, 1], points[:, 2],
+        c=points[:, 0], cmap='viridis', label='Simulated Portfolios'
+    )
+    ax.scatter(
+        sharpe_ratio, portfolio_annualized_return, portfolio_risk,
+        color='red', label='Optimal Portfolio', s=100
+    )
 
-    ax.set_xlabel('Sharpe Ratio')
-    ax.set_ylabel('Annualized Return')
-    ax.set_zlabel('Risk (Standard Deviation)')
-    ax.set_title('3D Visualization of Portfolio Metrics')
-    ax.legend()
+    ax.set_xlabel('Sharpe Ratio', fontsize=12, labelpad=15)
+    ax.set_ylabel('Annualized Return', fontsize=12, labelpad=15)
+    ax.set_zlabel('Risk (Standard Deviation)', fontsize=12, labelpad=15)
+    ax.set_title('3D Visualization of Portfolio Metrics', fontsize=14, pad=20)
+    ax.legend(fontsize=10)
+
+    # Add color bar for better visualization
+    cbar = fig.colorbar(scatter, ax=ax, shrink=0.5, aspect=10)
+    cbar.set_label('Sharpe Ratio', fontsize=10)
 
     st.pyplot(fig)
+
 
 # Streamlit Interface
 st.title("Fama-French Portfolio Optimization")
