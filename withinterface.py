@@ -138,10 +138,6 @@ def plot_3d_metrics(weights, returns, fama_french_factors, selected_factors):
     ax.set_zlabel('Risk (Standard Deviation)', labelpad=15, fontsize=6)
 
     ax.set_title('3D Visualization of Portfolio Metrics', pad=40, fontsize=14)
-    ax.legend(fontsize=10)  # Adjusted legend position and font size
-
-    # Adjust plot margins for better visibility
-    fig.subplots_adjust(left=0.5, right=0.5, top=0.9, bottom=0.1)
 
     st.pyplot(fig)
 
