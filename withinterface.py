@@ -117,7 +117,7 @@ st.sidebar.header("Input Parameters")
 # User inputs
 tickers = st.sidebar.text_input("Enter stock tickers (comma-separated):", "AAPL,SYM,BMRA,UNH,BBAI,NUKK")
 start_date = st.sidebar.date_input("Start Date", value=pd.Timestamp("2020-01-01"))
-end_date = st.sidebar.date_input("End Date", value=pd.Timestamp("2024-01-01"))
+end_date = st.sidebar.date_input("End Date", value=pd.Timestamp("2024-12-02"))
 
 # Factor selection. This part was done with some help from the ChatGPT
 st.sidebar.subheader("Select Factors to Use")
