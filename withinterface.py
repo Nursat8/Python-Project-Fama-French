@@ -146,10 +146,6 @@ def plot_3d_metrics(weights, returns, fama_french_factors, selected_factors):
     ax.set_title('3D Visualization of Portfolio Metrics', fontsize=14, pad=20)
     ax.legend(fontsize=10)
 
-    # Add color bar for better visualization
-    cbar = fig.colorbar(scatter, ax=ax, shrink=0.5, aspect=10)
-    cbar.set_label('Sharpe Ratio', fontsize=10)
-
     st.pyplot(fig)
 
 
