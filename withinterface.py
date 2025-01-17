@@ -185,6 +185,14 @@ if st.sidebar.button("Run Analysis"):
     st.subheader("Portfolio Returns")
     portfolio_returns = np.dot(stock_returns.values, weights)
     st.line_chart(pd.DataFrame(portfolio_returns, index=stock_returns.index, columns=['Portfolio Returns']))
+   
+    # Calculate and display volatility
+    st.subheader("Volatility")
+    stock_volatility = stock_returns.std() * np.sqrt(252)  # Annualized volatility
+    portfolio_volatility = np.sqrt(np.dot(weights.T, np.dot(stock_returns.cov() * 252, weights)))  # Annualized portfolio volatility
+    st.write("Individual Stock Volatility (Annualized):")
+    st.dataframe(stock_volatility.rename("Volatility"))
+    st.write(f"Portfolio Volatility (Annualized): {portfolio_volatility:.2%}")
 
     # Calculation of Sharpe Ratio
     st.subheader("Sharpe Ratio")
@@ -215,7 +223,7 @@ if st.sidebar.button("Run Analysis"):
     st.subheader("Factor Sensitivity Heatmap")
     beta_matrix = compute_beta_matrix(stock_returns, fama_french_factors, selected_factors)
     st.dataframe(beta_matrix)
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(8, 4))
     sns.heatmap(beta_matrix, annot=True, cmap="coolwarm", fmt=".2f")
     st.pyplot(plt)
 
