@@ -109,37 +109,6 @@ def compute_beta_matrix(returns, fama_french_factors, selected_factors):
         beta_matrix.append(beta)
     return pd.DataFrame(beta_matrix, columns=selected_factors, index=returns.columns)
 
-def plot_3d_metrics(weights, returns, fama_french_factors, selected_factors):
-    portfolio_returns = np.dot(returns.values, weights)
-    portfolio_annualized_return = np.mean(portfolio_returns) * 252
-    portfolio_risk = np.std(portfolio_returns) * np.sqrt(252)
-    sharpe_ratio = portfolio_annualized_return / portfolio_risk
-
-    # Generate data points
-    points = []
-    for i in range(1, 101):  # Simulate 100 different weight combinations
-        random_weights = np.random.dirichlet(np.ones(len(weights)), size=1)[0]
-        simulated_returns = np.dot(returns.values, random_weights)
-        simulated_annualized_return = np.mean(simulated_returns) * 252
-        simulated_risk = np.std(simulated_returns) * np.sqrt(252)
-        simulated_sharpe = simulated_annualized_return / simulated_risk
-        points.append((simulated_sharpe, simulated_annualized_return, simulated_risk))
-
-    points = np.array(points)
-
-    # Create 3D plot
-    fig = plt.figure(figsize=(10, 6))  # Adjusted width to provide space for labels
-    ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(points[:, 0], points[:, 1], points[:, 2], c=points[:, 0], cmap='viridis', label='Simulated Portfolios')
-    ax.scatter(sharpe_ratio, portfolio_annualized_return, portfolio_risk, color='r', label='Optimal Portfolio', s=100)
-
-    ax.set_xlabel('Sharpe Ratio')
-    ax.set_ylabel('Annualized Return')
-    ax.set_zlabel('Risk (Standard Deviation)')
-
-    ax.set_title('3D Visualization of Portfolio Metrics')
-
-    st.pyplot(fig)
 
 # Streamlit Interface
 st.title("Fama-French Portfolio Optimization")
@@ -231,9 +200,5 @@ if st.sidebar.button("Run Analysis"):
     plt.figure(figsize=(10, 6))
     sns.heatmap(stock_returns.corr(), annot=True, cmap="coolwarm", fmt=".2f")
     st.pyplot(plt)
-
-    # 3D Visualization of portfolio metrics
-    st.subheader("3D Visualization of Portfolio Metrics")
-    plot_3d_metrics(weights, stock_returns, fama_french_factors, selected_factors)
 
 
