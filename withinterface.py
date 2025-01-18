@@ -67,14 +67,14 @@ def calculate_weights(returns, fama_french_factors, selected_factors):
 # Function to calculate regression statistics
 def regression_statistics(X, y):
     beta, residuals, rank, s = np.linalg.lstsq(X, y, rcond=None)
-    y_pred = np.dot(X, beta)
+    y_predicted = np.dot(X, beta)
     n, k = X.shape
-    residual_sum_of_squares = np.sum((y - y_pred)**2)
+    rsum_of_squares = np.sum((y - y_predicted)**2)
     total_sum_of_squares = np.sum((y - np.mean(y))**2)
-    r_squared = 1 - (residual_sum_of_squares / total_sum_of_squares)
+    r_squared = 1 - (rsum_of_squares / total_sum_of_squares)
 
-    mse = residual_sum_of_squares / (n - k)
-    std_error = np.sqrt(np.diagonal(mse * np.linalg.inv(np.dot(X.T, X))))
+    mean_squared_error = rsum_of_squares / (n - k)
+    std_error = np.sqrt(np.diagonal(mean_squared_error * np.linalg.inv(np.dot(X.T, X))))
     t_stat = beta / std_error
     p_value = 2 * (1 - norm.cdf(np.abs(t_stat)))
 
@@ -154,7 +154,7 @@ if st.sidebar.button("Run Analysis"):
     # Calculate and display volatility
     st.subheader("Volatility")
     stock_volatility = stock_returns.std() * np.sqrt(252)  # Annualized volatility
-    portfolio_volatility = np.sqrt(np.dot(weights.T, np.dot(stock_returns.cov() * 252, weights)))  # Annualized portfolio volatility
+    portfolio_volatility = np.sqrt(np.dot(weights.T, np.dot(stock_returns.cov() * 252, weights)))  # Annualized portfolio volatility, 252 is trading period
     st.write("Individual Stock Volatility (Annualized):")
     st.dataframe(stock_volatility.rename("Volatility"))
     st.write(f"Portfolio Volatility (Annualized): {portfolio_volatility:.2%}")
